@@ -1,4 +1,4 @@
-import { findUserByEmail } from "../databases/dbManager.js";
+import { findUserByEmail, findUserById } from "../databases/dbManager.js";
 import { userSchema, newUserSchema } from "../schemas/userSchema.js";
 import bcrypt from "bcrypt";
 
@@ -42,6 +42,22 @@ export async function validateUser(req, res, next) {
     next();
   } catch (err) {
     console.error("Error while validating user", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function validateUserExistence(req, res, next) {
+  try {
+    const { userId } = res.locals;
+
+    const validate = await findUserById(userId);
+    if (!validate) {
+      return res.status(404).send("User not found.");
+    }
+
+    next();
+  } catch (err) {
+    console.error("Error while validating user existence", err.message);
     res.sendStatus(500);
   }
 }

@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createUser } from "../databases/dbManager.js";
+import { createUser, findUserInformationById } from "../databases/dbManager.js";
 
 export async function registerUser(req, res) {
   try {
@@ -28,6 +28,19 @@ export function logInUser(req, res) {
     res.status(200).send(token);
   } catch (err) {
     console.error("Error while logging in user", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function getUserInformation(req, res) {
+  try {
+    const { userId } = res.locals;
+
+    const userInformation = await findUserInformationById(userId);
+
+    res.status(200).send(userInformation);
+  } catch (err) {
+    console.error("Error while getting user information", err.message);
     res.sendStatus(500);
   }
 }
