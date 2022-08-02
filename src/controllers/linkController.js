@@ -1,6 +1,6 @@
 import { customAlphabet } from "nanoid";
 import { alphanumeric } from "nanoid-dictionary";
-import { createLink, findLinkById } from "../databases/dbManager.js";
+import { createLink, findLinkById, findLinkByShortUrl, incrementLinkVisitCount } from "../databases/dbManager.js";
 
 export async function shortenLink(req, res) {
   try {
@@ -28,6 +28,23 @@ export async function getLink(req, res) {
     res.status(200).send(link);
   } catch (err) {
     console.error("Error while getting link", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function accessLink(req, res) {
+  try {
+    const { shortUrl } = req.params;
+
+    const link = await findLinkByShortUrl(shortUrl);
+    if (!link) {
+      return res.sendStatus(404);
+    }
+    await incrementLinkVisitCount(link.id);
+
+    res.redirect(link.url);
+  } catch (err) {
+    console.error("Error while accessing link", err.message);
     res.sendStatus(500);
   }
 }
