@@ -1,7 +1,5 @@
 import joi from "joi";
 
-const linkSchema = joi.object({
-  url: joi.string().uri().required(),
+export const linkSchema = joi.object({
+  url: joi.string().uri().trim().required(),
 });
-
-export default linkSchema;
