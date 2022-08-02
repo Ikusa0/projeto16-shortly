@@ -1,6 +1,7 @@
-import linkSchema from "../schemas/linkSchema.js";
+import { linkSchema } from "../schemas/linkSchema.js";
+import { findLinkOwnerById } from "../databases/dbManager.js";
 
-export default async function validateLink(req, res, next) {
+export async function validateLink(req, res, next) {
   try {
     const link = req.body;
 
@@ -12,6 +13,27 @@ export default async function validateLink(req, res, next) {
     next();
   } catch (err) {
     console.error("Error while validating link", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function validateLinkOwner(req, res, next) {
+  try {
+    const { id: linkId } = req.params;
+
+    const { userId } = res.locals;
+    try {
+      const { userId: owner } = await findLinkOwnerById(linkId);
+      if (userId !== owner) {
+        return res.sendStatus(401);
+      }
+    } catch {
+      return res.sendStatus(404);
+    }
+
+    next();
+  } catch (err) {
+    console.error("Error while validating link owner", err.message);
     res.sendStatus(500);
   }
 }

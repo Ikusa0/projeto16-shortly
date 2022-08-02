@@ -1,6 +1,12 @@
 import { customAlphabet } from "nanoid";
 import { alphanumeric } from "nanoid-dictionary";
-import { createLink, findLinkById, findLinkByShortUrl, incrementLinkVisitCount } from "../databases/dbManager.js";
+import {
+  createLink,
+  findLinkById,
+  findLinkByShortUrl,
+  incrementLinkVisitCount,
+  deleteLinkById,
+} from "../databases/dbManager.js";
 
 export async function shortenLink(req, res) {
   try {
@@ -45,6 +51,18 @@ export async function accessLink(req, res) {
     res.redirect(link.url);
   } catch (err) {
     console.error("Error while accessing link", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function deleteLink(req, res) {
+  try {
+    const { id: linkId } = req.params;
+    await deleteLinkById(linkId);
+
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("Error while deleting link", err.message);
     res.sendStatus(500);
   }
 }
