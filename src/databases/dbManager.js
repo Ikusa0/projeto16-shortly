@@ -31,6 +31,19 @@ export async function findUserInformationById(id) {
   return user[0];
 }
 
+export async function findRanking() {
+  const { rows: ranking } = await connection.query(
+    `SELECT users."id", users."name", COALESCE(SUM(links."visitCount"), 0) AS "visitCount" 
+     FROM users
+     LEFT JOIN links
+     ON links."userId" = users."id"
+     GROUP BY users."id"
+     ORDER BY "visitCount" DESC, users."id" ASC
+     LIMIT 10`
+  );
+  return ranking;
+}
+
 export async function createUser(user) {
   await connection.query(`INSERT INTO users("name", "email", "password") VALUES ($1, $2, $3)`, Object.values(user));
 }

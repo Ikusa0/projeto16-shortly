@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createUser, findUserInformationById } from "../databases/dbManager.js";
+import { createUser, findUserInformationById, findRanking } from "../databases/dbManager.js";
 
 export async function registerUser(req, res) {
   try {
@@ -41,6 +41,17 @@ export async function getUserInformation(req, res) {
     res.status(200).send(userInformation);
   } catch (err) {
     console.error("Error while getting user information", err.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function getRanking(req, res) {
+  try {
+    const ranking = await findRanking();
+
+    res.status(200).send(ranking);
+  } catch (err) {
+    console.error("Error while getting ranking", err.message);
     res.sendStatus(500);
   }
 }
