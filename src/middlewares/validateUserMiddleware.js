@@ -1,4 +1,4 @@
-import { findUserByEmail, findUserById } from "../databases/dbManager.js";
+import userRepository from "../repositories/userRepository.js";
 import { userSchema, newUserSchema } from "../schemas/userSchema.js";
 import bcrypt from "bcrypt";
 
@@ -11,7 +11,7 @@ export async function validateNewUser(req, res, next) {
       return res.status(422).send(validate.error.details.map((err) => err.message).join("\n"));
     }
 
-    const emailExists = await findUserByEmail(newUser.email);
+    const emailExists = await userRepository.findUserByEmail(newUser.email);
     if (emailExists) {
       return res.status(409).send("Email informado já está em uso.");
     }
@@ -32,7 +32,7 @@ export async function validateUser(req, res, next) {
       return res.status(422).send(validate.error.details.map((err) => err.message).join("\n"));
     }
 
-    const dbUser = await findUserByEmail(user.email);
+    const dbUser = await userRepository.findUserByEmail(user.email);
     if (!bcrypt.compareSync(user.password, dbUser?.password || "")) {
       return res.status(401).send("E-mail ou Senha inválido.");
     }
@@ -50,7 +50,7 @@ export async function validateUserExistence(req, res, next) {
   try {
     const { userId } = res.locals;
 
-    const validate = await findUserById(userId);
+    const validate = await userRepository.findUserById(userId);
     if (!validate) {
       return res.status(404).send("User not found.");
     }

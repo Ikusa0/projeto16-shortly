@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createUser, findUserInformationById, findRanking } from "../databases/dbManager.js";
+import userRepository from "../repositories/userRepository.js";
 
 export async function registerUser(req, res) {
   try {
@@ -10,7 +10,7 @@ export async function registerUser(req, res) {
     newUser.password = hashedPassword;
 
     delete newUser.confirmPassword;
-    await createUser(newUser);
+    await userRepository.createUser(newUser);
 
     res.sendStatus(201);
   } catch (err) {
@@ -36,7 +36,7 @@ export async function getUserInformation(req, res) {
   try {
     const { userId } = res.locals;
 
-    const userInformation = await findUserInformationById(userId);
+    const userInformation = await userRepository.findUserInformationById(userId);
 
     res.status(200).send(userInformation);
   } catch (err) {
@@ -47,7 +47,7 @@ export async function getUserInformation(req, res) {
 
 export async function getRanking(req, res) {
   try {
-    const ranking = await findRanking();
+    const ranking = await userRepository.findRanking();
 
     res.status(200).send(ranking);
   } catch (err) {

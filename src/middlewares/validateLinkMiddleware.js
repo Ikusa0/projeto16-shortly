@@ -1,5 +1,5 @@
 import { linkSchema } from "../schemas/linkSchema.js";
-import { findLinkOwnerById } from "../databases/dbManager.js";
+import linkRepository from "../repositories/linkRepository.js";
 
 export async function validateLink(req, res, next) {
   try {
@@ -23,7 +23,7 @@ export async function validateLinkOwner(req, res, next) {
 
     const { userId } = res.locals;
     try {
-      const { userId: owner } = await findLinkOwnerById(linkId);
+      const { userId: owner } = await linkRepository.findLinkOwnerById(linkId);
       if (userId !== owner) {
         return res.sendStatus(401);
       }

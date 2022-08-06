@@ -1,12 +1,6 @@
 import { customAlphabet } from "nanoid";
 import { alphanumeric } from "nanoid-dictionary";
-import {
-  createLink,
-  findLinkById,
-  findLinkByShortUrl,
-  incrementLinkVisitCount,
-  deleteLinkById,
-} from "../databases/dbManager.js";
+import linkRepository from "../repositories/linkRepository.js";
 
 export async function shortenLink(req, res) {
   try {
@@ -16,7 +10,7 @@ export async function shortenLink(req, res) {
     const shortUrl = nanoid();
 
     const link = { url, shortUrl, userId };
-    await createLink(link);
+    await linkRepository.createLink(link);
 
     res.status(201).send({ shortUrl });
   } catch (err) {
@@ -29,7 +23,11 @@ export async function getLink(req, res) {
   try {
     const { id: linkId } = req.params;
 
-    const link = await findLinkById(linkId);
+    const link = await linkRepository.findLinkById(linkId);
+
+    if (!link) {
+      return res.sendStatus(404);
+    }
 
     res.status(200).send(link);
   } catch (err) {
@@ -42,11 +40,11 @@ export async function accessLink(req, res) {
   try {
     const { shortUrl } = req.params;
 
-    const link = await findLinkByShortUrl(shortUrl);
+    const link = await linkRepository.findLinkByShortUrl(shortUrl);
     if (!link) {
       return res.sendStatus(404);
     }
-    await incrementLinkVisitCount(link.id);
+    await linkRepository.incrementLinkVisitCount(link.id);
 
     res.redirect(link.url);
   } catch (err) {
@@ -58,7 +56,7 @@ export async function accessLink(req, res) {
 export async function deleteLink(req, res) {
   try {
     const { id: linkId } = req.params;
-    await deleteLinkById(linkId);
+    await linkRepository.deleteLinkById(linkId);
 
     res.sendStatus(204);
   } catch (err) {
