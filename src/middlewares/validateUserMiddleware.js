@@ -1,15 +1,9 @@
 import userRepository from "../repositories/userRepository.js";
-import { userSchema, newUserSchema } from "../schemas/userSchema.js";
 import bcrypt from "bcrypt";
 
 export async function validateNewUser(req, res, next) {
   try {
     const newUser = req.body;
-
-    const validate = newUserSchema.validate(newUser, { abortEarly: false });
-    if (validate.error) {
-      return res.status(422).send(validate.error.details.map((err) => err.message).join("\n"));
-    }
 
     const emailExists = await userRepository.findUserByEmail(newUser.email);
     if (emailExists) {
@@ -26,11 +20,6 @@ export async function validateNewUser(req, res, next) {
 export async function validateUser(req, res, next) {
   try {
     const user = req.body;
-
-    const validate = userSchema.validate(user, { abortEarly: false });
-    if (validate.error) {
-      return res.status(422).send(validate.error.details.map((err) => err.message).join("\n"));
-    }
 
     const dbUser = await userRepository.findUserByEmail(user.email);
     if (!bcrypt.compareSync(user.password, dbUser?.password || "")) {

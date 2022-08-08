@@ -12,12 +12,12 @@ async function findUserById(id) {
 
 async function findUserInformationById(id) {
   const { rows: user } = await connection.query(
-    `SELECT users."id", users."name", SUM(links."visitCount") AS "visitCount" 
-     FROM users
-     JOIN links
-     ON links."userId" = users."id"
-     WHERE users."id" = $1
-     GROUP BY users."id"`,
+    `SELECT users."id", users."name", COALESCE(SUM(links."visitCount"), 0) AS "visitCount" 
+    FROM users
+    LEFT JOIN links
+    ON links."userId" = users."id"
+    WHERE users."id" = $1
+    GROUP BY users."id"`,
     [id]
   );
   const { rows: shortenedUrls } = await connection.query(
